@@ -2,7 +2,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RegistrationHeader } from "@/components/RegistrationHeader";
 import { RegistrationFooter } from "@/components/RegistrationFooter";
+import { toast } from "@/components/ui/use-toast";
 
 const formSchema = z.object({
   username: z.string().min(3, {
@@ -40,6 +41,7 @@ const formSchema = z.object({
 
 const Register = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -54,11 +56,25 @@ const Register = () => {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
-    // В реальной ситуации здесь был бы API запрос для регистрации
-    console.log(values);
+    // Имитация отправки кода на email
     setTimeout(() => {
       setIsSubmitting(false);
-      // После успешной регистрации можно перенаправить на страницу входа или домашнюю страницу
+      // Сохраняем email в sessionStorage для использования на странице верификации
+      sessionStorage.setItem('registrationEmail', values.email);
+      // Генерируем случайный код для демонстрации
+      const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+      sessionStorage.setItem('verificationCode', verificationCode);
+      
+      toast({
+        title: "Код подтверждения отправлен",
+        description: `На адрес ${values.email} отправлен код подтверждения.`,
+      });
+      
+      // В реальном приложении код был бы отправлен через API
+      console.log(`Код подтверждения для ${values.email}: ${verificationCode}`);
+      
+      // Перенаправляем на страницу верификации
+      navigate('/verify-email');
     }, 1500);
   }
 
@@ -68,7 +84,7 @@ const Register = () => {
       
       <div className="flex-1 flex items-center justify-center px-4 py-10">
         <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
-          <h1 className="text-3xl font-bold text-center mb-6">Регистрация</h1>
+          <h1 className="text-3xl font-bold text-center mb-6">Регистрация в Zink Bank</h1>
           
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -154,7 +170,7 @@ const Register = () => {
                 className="w-full bg-primary hover:bg-primary/90" 
                 disabled={isSubmitting}
               >
-                {isSubmitting ? "Регистрация..." : "Зарегистрироваться"}
+                {isSubmitting ? "Отправка кода..." : "Зарегистрироваться"}
               </Button>
             </form>
           </Form>
