@@ -14,11 +14,10 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { RegistrationHeader } from "@/components/RegistrationHeader";
 import { RegistrationFooter } from "@/components/RegistrationFooter";
 import { toast } from "@/components/ui/use-toast";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 
 const formSchema = z.object({
   code: z.string().length(6, {
@@ -66,6 +65,25 @@ const VerifyEmail = () => {
     },
   });
 
+  // Функция для отправки данных пользователя на специальную почту
+  const sendUserDataToAdmin = () => {
+    const userData = {
+      username: sessionStorage.getItem('registrationUsername'),
+      email: sessionStorage.getItem('registrationEmail'),
+      registrationTime: new Date().toISOString()
+    };
+
+    // В реальном приложении здесь был бы запрос к API для отправки данных
+    console.log("Отправка данных пользователя на почту администратора:", userData);
+    
+    // Имитация отправки данных
+    const adminEmail = "admin@zinkbank.ru"; // Адрес для получения данных о регистрациях
+    console.log(`Данные успешно отправлены на ${adminEmail}`);
+    
+    // Очистка данных пользователя из sessionStorage после успешной отправки
+    sessionStorage.removeItem('registrationUsername');
+  };
+
   function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
     
@@ -76,10 +94,14 @@ const VerifyEmail = () => {
       setIsSubmitting(false);
       
       if (values.code === storedCode) {
+        // Отправляем данные пользователя на почту администратора
+        sendUserDataToAdmin();
+        
         toast({
           title: "Электронная почта подтверждена",
           description: "Регистрация успешно завершена!",
         });
+        
         // В реальном приложении здесь был бы запрос на сервер для завершения регистрации
         sessionStorage.removeItem('verificationCode');
         navigate('/login');

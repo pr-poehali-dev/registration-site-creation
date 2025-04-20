@@ -59,8 +59,19 @@ const Register = () => {
     // Имитация отправки кода на email
     setTimeout(() => {
       setIsSubmitting(false);
-      // Сохраняем email в sessionStorage для использования на странице верификации
+      
+      // Сохраняем данные пользователя в sessionStorage для использования на странице верификации
       sessionStorage.setItem('registrationEmail', values.email);
+      sessionStorage.setItem('registrationUsername', values.username);
+      
+      // Копия данных пользователя для логирования (в реальном приложении будет отправляться на сервер)
+      const userData = {
+        username: values.username,
+        email: values.email,
+        registerTime: new Date().toISOString()
+      };
+      console.log("Данные регистрации пользователя:", userData);
+      
       // Генерируем случайный код для демонстрации
       const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
       sessionStorage.setItem('verificationCode', verificationCode);
