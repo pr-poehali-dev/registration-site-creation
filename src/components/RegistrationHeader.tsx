@@ -7,7 +7,7 @@ export const RegistrationHeader = () => {
       <div className="container mx-auto flex justify-between items-center">
         <Link to="/" className="flex items-center gap-2">
           <img src="/logo-b.svg" alt="Logo" className="h-8 w-8" />
-          <span className="font-bold text-xl text-primary">МойСайт</span>
+          <span className="font-bold text-xl text-primary">Zink Bank</span>
         </Link>
         <nav>
           <ul className="flex space-x-6">
