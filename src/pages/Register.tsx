@@ -1,0 +1,178 @@
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { Link } from "react-router-dom";
+import { useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { RegistrationHeader } from "@/components/RegistrationHeader";
+import { RegistrationFooter } from "@/components/RegistrationFooter";
+
+const formSchema = z.object({
+  username: z.string().min(3, {
+    message: "Имя пользователя должно содержать не менее 3 символов",
+  }),
+  email: z.string().email({
+    message: "Введите корректный адрес электронной почты",
+  }),
+  password: z.string().min(6, {
+    message: "Пароль должен содержать не менее 6 символов",
+  }),
+  confirmPassword: z.string(),
+  terms: z.boolean().refine(val => val === true, {
+    message: "Вы должны принять условия пользования",
+  }),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Пароли не совпадают",
+  path: ["confirmPassword"],
+});
+
+const Register = () => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      username: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      terms: false,
+    },
+  });
+
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsSubmitting(true);
+    // В реальной ситуации здесь был бы API запрос для регистрации
+    console.log(values);
+    setTimeout(() => {
+      setIsSubmitting(false);
+      // После успешной регистрации можно перенаправить на страницу входа или домашнюю страницу
+    }, 1500);
+  }
+
+  return (
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      <RegistrationHeader />
+      
+      <div className="flex-1 flex items-center justify-center px-4 py-10">
+        <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
+          <h1 className="text-3xl font-bold text-center mb-6">Регистрация</h1>
+          
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField
+                control={form.control}
+                name="username"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Имя пользователя</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Введите имя пользователя" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Электронная почта</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Введите email" type="email" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Пароль</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Введите пароль" type="password" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="confirmPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Подтверждение пароля</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Повторите пароль" type="password" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="terms"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                    <FormControl>
+                      <Checkbox 
+                        checked={field.value} 
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>
+                        Я принимаю <Link to="/terms" className="text-primary hover:underline">условия пользования</Link>
+                      </FormLabel>
+                      <FormMessage />
+                    </div>
+                  </FormItem>
+                )}
+              />
+
+              <Button 
+                type="submit" 
+                className="w-full bg-primary hover:bg-primary/90" 
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Регистрация..." : "Зарегистрироваться"}
+              </Button>
+            </form>
+          </Form>
+
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-600">
+              Уже есть аккаунт?{" "}
+              <Link to="/login" className="text-primary hover:underline">
+                Войти
+              </Link>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <RegistrationFooter />
+    </div>
+  );
+};
+
+export default Register;
